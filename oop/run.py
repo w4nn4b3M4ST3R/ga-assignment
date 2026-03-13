@@ -13,31 +13,9 @@ from src.ga import (
     OnePointCrossover,
     TournamentSelection,
 )
-from src.problems import KnapsackProblem, OneMaxProblem
+from src.problems import HyperparameterTuningProblem, KnapsackProblem, OneMaxProblem
 
 import config
-
-
-def save_results(name, best_fitness, runtime, history):
-    # Ensure the reports directory exists
-    os.makedirs("reports", exist_ok=True)
-
-    # Save results to a JSON file
-    result_data = {
-        "best_fitness": best_fitness,
-        "runtime": runtime,
-        "history": history,
-    }
-    with open(f"reports/results_oop_{name}.json", "w") as f:
-        json.dump(result_data, f, indent=4)
-
-    plt.figure()
-    plt.plot(history)
-    plt.title(f"OOP GA - {name.capitalize()} Evolution")
-    plt.xlabel("Generation")
-    plt.ylabel("Fitness")
-    plt.savefig(f"reports/{name}_curve_oop.png")
-    plt.close()
 
 
 def run_experiment():
@@ -49,7 +27,10 @@ def run_experiment():
         "knapsack": KnapsackProblem(
             num_items=cfg["chromosome_length"], random_seed=cfg["random_seed"]
         ),
+        "tuning": HyperparameterTuningProblem(),
     }
+
+    all_results = {}
 
     for name, problem in problems.items():
         print(f"Running OOP GA for {name}...")
@@ -75,9 +56,26 @@ def run_experiment():
         runtime = time.time() - start_time
 
         print(
-            f"[{name}] Best fitness: {best_solution.fitness}, Runtime: {runtime:.2f}s"
+            f"[{name}] Best fitness: {best_solution.fitness:.4f}, Runtime: {runtime:.2f}s"
         )
-        save_results(name, best_solution.fitness, runtime, history)
+
+        all_results[name] = {
+            "best_fitness": best_solution.fitness,
+            "runtime": runtime,
+            "history": history,
+        }
+
+        plt.figure()
+        plt.plot(history)
+        plt.title(f"OOP GA - {name.capitalize()} Evolution")
+        plt.xlabel("Generation")
+        plt.ylabel("Fitness")
+        plt.savefig(f"reports/{name}_curve_oop.png")
+        plt.close()
+
+    os.makedirs("reports", exist_ok=True)
+    with open("reports/results_oop.json", "w") as f:
+        json.dump(all_results, f, indent=4)
 
 
 if __name__ == "__main__":

@@ -6,4 +6,5 @@ GA_CONFIG = {
     "elitism_count": 2,
     "num_generations": 300,
     "random_seed": 42,
+    "hyperparameter_length": 16,
 }
