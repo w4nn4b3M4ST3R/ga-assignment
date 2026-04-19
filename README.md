@@ -64,11 +64,10 @@ Transitioning the GA engine between OOP and FP paradigms revealed significant ar
 - **Functional Programming (FP):** The FP pipeline completely discards classes and mutable states, relying strictly on pure functions (`map`, `reduce`, `filter`) and immutable `tuples`. While this eliminates side-effects and race conditions—making the codebase theoretically perfect for parallel or distributed computing—it introduces a heavy performance penalty. Python's garbage collection struggles with continuous memory allocation for new tuples in every generation, causing the FP execution time to be roughly 2x to 3x slower than OOP (e.g., `~0.53s` for Knapsack).
 
 <figure style="text-align: center;">
-  <img src="reports/knapsack_curve_oop.png" width="45%">
-  <img src="reports/knapsack_curve_fp.png" width="45%">
-  <figcaption style="font-weight: bold; font-size: 18px;">
-    An example of obtained results
-  </figcaption>
+  <div style="display: flex; justify-content: center; gap: 10px;">
+    <img src="reports/knapsack_curve_oop.png" style="width: 45%;">
+    <img src="reports/knapsack_curve_fp.png" style="width: 45%;">
+  </div>
 </figure>
 
 Ultimately, OOP proved superior for the raw iterative speed required by heuristic searches, while FP enforced a safer, side-effect-free data transformation pipeline.
