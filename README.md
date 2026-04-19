@@ -63,12 +63,28 @@ Transitioning the GA engine between OOP and FP paradigms revealed significant ar
 - **Object-Oriented Programming (OOP):** The OOP implementation utilizes the Strategy Pattern to decouple genetic operators (Selection, Crossover, Mutation) from the core engine. Modeling biological processes natively aligns with OOP; a `Chromosome` object "mutates" by altering its internal state in place. Because Python lists are mutable, in-place bit-flipping is highly memory-efficient. This resulted in superior raw execution speed, solving the Knapsack problem in approximately `~0.26s` and the complex Tuning problem in `~0.12s`.
 - **Functional Programming (FP):** The FP pipeline completely discards classes and mutable states, relying strictly on pure functions (`map`, `reduce`, `filter`) and immutable `tuples`. While this eliminates side-effects and race conditions—making the codebase theoretically perfect for parallel or distributed computing—it introduces a heavy performance penalty. Python's garbage collection struggles with continuous memory allocation for new tuples in every generation, causing the FP execution time to be roughly 2x to 3x slower than OOP (e.g., `~0.53s` for Knapsack).
 
+<figure style="text-align: center;">
+  <img src="reports/knapsack_curve_oop.png" width="45%">
+  <img src="reports/knapsack_curve_fp.png" width="45%">
+  <figcaption style="font-weight: bold; font-size: 18px;">
+    An example of obtained results
+  </figcaption>
+</figure>
+
 Ultimately, OOP proved superior for the raw iterative speed required by heuristic searches, while FP enforced a safer, side-effect-free data transformation pipeline.
 
-## 5. Extra Analysis: Genetic Algorithms vs. Gradient-Based Optimization
+## 5. Extra Analysis: GA as an Automatic Hyperparameter Tuning Strategy
 
-By successfully extending the GA to solve the **Hyperparameter Tuning** problem, this project highlights specific scenarios where derivative-free optimization (like GA) outperforms standard gradient-based methods (like Gradient Descent or Adam):
+In the realm of machine learning and deep learning, model optimization fundamentally occurs on two distinct levels: **updating the trainable parameters** (typically via gradient-based methods) and **configuring the overarching hyperparameters**. Hyperparameters — such as **learning rates, regularization coefficients, or architectural dimensions** — are not learned from the data directly; rather, they govern the learning process itself.
 
-1. **Handling Discrete & Non-Differentiable Spaces:** Gradient Descent mathematically requires continuous, differentiable loss landscapes to compute weight updates. It entirely fails on discrete problems like the 0/1 Knapsack. GA, using binary representations, seamlessly bridges the gap between discrete logic and continuous values via binary decoding.
-2. **Escaping Local Optima:** In highly non-convex loss landscapes (common in complex hyperparameter tuning), gradient methods can easily get trapped in local minima. GA mitigates this through stochastic **Mutation** and **Crossover**, allowing the algorithm to globally explore the search space and jump out of suboptimal valleys.
-3. **Population-Based Global Search:** Unlike gradient methods, which move a single solution iteratively down a slope, GA maintains a parallel population of 100 candidate solutions. This explores multiple regions of the solution space simultaneously before converging on the global optimum.
+**The Optimization Bottleneck:**
+The selection of these hyperparameters profoundly **impacts an algorithm's behavior, training duration, and, most critically, its ability to generalize to unseen data**. A poorly tuned model, even with a robust architecture, can fail catastrophically. Consequently, **hyperparameter tuning** is not merely a preliminary setup step; it is a complex optimization problem in its own right, where the objective function is to minimize the validation error. However, this hyperparameter search landscape is notoriously difficult to navigate — it is often non-differentiable, highly non-convex, and computationally expensive to evaluate.
+
+**Why Genetic Algorithms are powerful alternatives:**
+While traditional strategies like **Grid Search, Random Search, and Bayesian Regression Model** are standard approaches to navigating this space, they can struggle with the curse of dimensionality, blind sampling, or sequential bottlenecks. By successfully applying a Genetic Algorithm to this domain, this project demonstrates why GA is a highly viable and effective method alongside these traditional techniques:
+
+1. **Derivative-Free Flexibility:** GA does not require a differentiable loss landscape. Through binary decoding, it natively handles both discrete variables (like network layers/dimensions) and continuous ranges (like learning rates, regularization coefficients) seamlessly within the same architecture.
+2. **Directed, Population-Based Exploration:** Unlike pure random sampling, GA is a heuristic search that "learns" from past evaluations. By utilizing _Selection_ and _Crossover_, the algorithm preserves and combines "building blocks" of high-performing hyperparameter configurations. Furthermore, maintaining a parallel _Population_ allows GA to explore multiple regions of the search space simultaneously.
+3. **Escaping Local Optima:** The stochastic nature of _Mutation_ prevents the search from getting trapped in suboptimal valleys, a common pitfall in complex, non-convex hyperparameter landscapes.
+
+Ultimately, casting **hyperparameter tuning** as an evolutionary process provides **a robust, parallelizable, and global search mechanism** that abstracts away the mathematical rigidity of the loss landscape, making it **a formidable tool in the ML/DL optimization toolkit**.
